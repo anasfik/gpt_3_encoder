@@ -1,39 +1,30 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# GPT 3 Encoder
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+This package aims to provide a simple interface for encoding and decoding text same as GPT-3, GPT-2 that uses byte pair encoding (BPE) to turn text into a series of integers to feed into the models.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
-
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+This package is a pure Dart implementation of OpenAI's original Python encoder/decoder.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
-
 ```dart
-const like = 'sample';
+import 'package:gpt_3_encoder/gpt_3_encoder.dart';
+
+void main() {
+  // This is the text we want to encode and decode.
+  final text = "Hello World!";
+
+  // Encode the text.
+  final encoded = GPT3Encoder.instance.encode(text);
+
+  // Print the encoded text and its token length. 
+  print(
+    "Your text contains ${encoded.length} tokens, encoded as follows: $encoded",
+  );
+
+  // Decode back the encoded text token by token and print the results.
+  encoded.forEach((token) {
+    final decoded = GPT3Encoder.instance.decode([token]);
+    print("Token: $token, decoded as: $decoded");
+  });
+}
 ```
-
-## Additional information
-
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
