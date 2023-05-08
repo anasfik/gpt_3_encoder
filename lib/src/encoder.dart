@@ -29,7 +29,7 @@ class GPT3Encoder {
     return res;
   }
 
- Returns the unicode code point of a character
+  ///  Returns the unicode code point of a character
   int _ord(String char) {
     return char.codeUnitAt(0);
   }
