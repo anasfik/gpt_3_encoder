@@ -29,19 +29,7 @@ class GPT3Encoder {
     return res;
   }
 
-  /// Splits a string into a list of characters
-  List<String> _split(String str) {
-    final pat = RegExp(
-      r'\s+',
-      caseSensitive: false,
-      multiLine: true,
-      dotAll: true,
-      unicode: true,
-    );
-    return str.split(pat);
-  }
-
-  /// Returns the unicode code point of a character
+ Returns the unicode code point of a character
   int _ord(String char) {
     return char.codeUnitAt(0);
   }
