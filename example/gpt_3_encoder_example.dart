@@ -13,8 +13,8 @@ void main() {
   );
 
   // Decode the encoded text token by token and print the result.
-  encoded.forEach((token) {
+  for (var token in encoded) {
     final decoded = GPT3Encoder.instance.decode([token]);
     print("Token: $token, decoded as: $decoded");
-  });
+  }
 }

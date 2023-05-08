@@ -7,7 +7,7 @@ import 'dart:math';
 /// {@endtemplate}
 class GPT3Encoder {
   /// {@macro gpt3_encoder}
-  static GPT3Encoder _instance = GPT3Encoder._();
+  static final GPT3Encoder _instance = GPT3Encoder._();
 
   /// {@macro gpt3_encoder}
   static GPT3Encoder get instance => _instance;
@@ -31,14 +31,14 @@ class GPT3Encoder {
 
   /// Splits a string into a list of characters
   List<String> _split(String str) {
-    final _pat = RegExp(
+    final pat = RegExp(
       r'\s+',
       caseSensitive: false,
       multiLine: true,
       dotAll: true,
       unicode: true,
     );
-    return str.split(_pat);
+    return str.split(pat);
   }
 
   /// Returns the unicode code point of a character
@@ -157,10 +157,10 @@ class GPT3Encoder {
     while (true) {
       final minPairs = {};
       final pairsList = List.from(pairs);
-      pairsList.forEach((pair) {
+      for (var pair in pairsList) {
         final rank = _bpeRanks![pair.join('')];
         minPairs[(isNaN(rank) ? 10e10 : rank)] = pair;
-      });
+      }
 
       final minimum = _minimum(
         minPairs.keys.map(
@@ -178,28 +178,28 @@ class GPT3Encoder {
 
       dynamic first = bigram[0];
       dynamic second = bigram[1];
-      dynamic new_word = [];
+      dynamic newWord = [];
       dynamic i = 0;
 
       while (i < word.length) {
         final j = word.indexOf(first, i);
         if (j == -1) {
-          new_word = new_word.followedBy(word.sublist(i)).toList();
+          newWord = newWord.followedBy(word.sublist(i)).toList();
           break;
         }
-        new_word = new_word.followedBy(word.sublist(i, j)).toList();
+        newWord = newWord.followedBy(word.sublist(i, j)).toList();
         i = j;
 
         if (word[i] == first && i < word.length - 1 && word[i + 1] == second) {
-          new_word.add(first + second);
+          newWord.add(first + second);
           i = i + 2;
         } else {
-          new_word.add(word[i]);
+          newWord.add(word[i]);
           i = i + 1;
         }
       }
 
-      word = new_word;
+      word = newWord;
       if (word.length == 1) {
         break;
       } else {
@@ -230,12 +230,10 @@ class GPT3Encoder {
         return encoded;
       }).join('');
 
-      final new_tokens = _bpe(localToken)
-          .split(' ')
-          .map((x) => _encoder![x])
-          .toList() as List<int?>;
+      final newTokens =
+          _bpe(localToken).split(' ').map((x) => _encoder![x]).toList();
 
-      bpeTokens = bpeTokens.followedBy(new_tokens.cast()).toList();
+      bpeTokens = bpeTokens.followedBy(newTokens.cast()).toList();
     }
 
     return bpeTokens;
@@ -270,10 +268,10 @@ class GPT3Encoder {
 
     _bpeFile = File("vocab.bpe").readAsStringSync();
 
-    _encoder!.keys.forEach((e) {
+    for (var e in _encoder!.keys) {
       final encoded = _encoder![e];
       _decoder[encoded] = e;
-    });
+    }
 
     _lines = _bpeFile!.split('\n');
     _bpeMerges = _lines!.sublist(1, _lines!.length - 1).map((x) {
@@ -288,7 +286,9 @@ class GPT3Encoder {
 
     _byteEncoder = _bytesToUnicode();
     _byteDecoder = {};
-    _byteEncoder!.keys.forEach((x) => {_byteDecoder![_byteEncoder![x]] = x});
+    for (var x in _byteEncoder!.keys) {
+      _byteDecoder![_byteEncoder![x]] = x;
+    }
     _bpeRanks = _dictZip(_bpeMerges, _range(0, _bpeMerges.length));
     _cache = {};
   }
