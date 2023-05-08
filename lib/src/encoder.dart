@@ -213,8 +213,15 @@ class GPT3Encoder {
     return word;
   }
 
+  /// Encodes a give, [text] into a list of tokens.
+  ///
+  /// ```dart
+  /// final text = 'Hello World!';
+  /// final tokens = GPT3Encoder.instance.encode(text);
+  /// print(tokens); // [15496, 2159, 0]
+  /// ```
   List<int> encode(String text) {
-    List<int> bpe_tokens = [];
+    List<int> bpeTokens = [];
     final matches = _pat.allMatches(text).map((x) => x.group(0)).toList();
     for (var token in matches) {
       final encoded = _encodeStr(token!);
@@ -228,12 +235,22 @@ class GPT3Encoder {
           .map((x) => _encoder![x])
           .toList() as List<int?>;
 
-      bpe_tokens = bpe_tokens.followedBy(new_tokens.cast()).toList();
+      bpeTokens = bpeTokens.followedBy(new_tokens.cast()).toList();
     }
 
-    return bpe_tokens;
+    return bpeTokens;
   }
 
+  /// Decodes a the given [tokens] into a string.
+  ///
+  /// ```dart
+  /// final text = 'Hello World!';
+  ///
+  /// final encoded = GPT3Encoder.instance.encode(text);
+  /// final decoded = GPT3Encoder.instance.decode(tokens);
+  ///
+  /// print(decoded); // Hello World!
+  ///
   String decode(List<int> tokens) {
     dynamic text = tokens.map((x) => _decoder[x]).join('');
 
@@ -245,6 +262,7 @@ class GPT3Encoder {
     return text;
   }
 
+  /// {@macro gpt3_encoder}
   GPT3Encoder._() {
     _encoder = (jsonDecode(File("./encoder.json").readAsStringSync())
             as Map<String, dynamic>)

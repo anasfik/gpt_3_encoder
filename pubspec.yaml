@@ -1,8 +1,9 @@
 name: gpt_3_encoder
-description: Dart BPE Encoder Decoder for GPT-2 / GPT-3
-
+description: A pure Dart implementation of OpenAI's original Python encoder/decoder for GPT models.
 version: 0.9.0
 repository: https://github.com/anasfik/gpt_3_encoder
+
+
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
