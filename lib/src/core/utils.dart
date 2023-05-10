@@ -46,19 +46,6 @@ abstract class GPT3EncoderUtils {
 
   static num minimum(Iterable<num> nums) => nums.reduce(min);
 
-  static Map dictZip(List<List<String>> x, List<int> y) {
-    final result = {};
-    x.asMap().forEach(
-      (i, _) {
-        final el = x[i].join('');
-        final yel = y[i];
-        result[el] = yel;
-      },
-    );
-
-    return result;
-  }
-
   static final pat = RegExp(
     r"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+",
     unicode: true,

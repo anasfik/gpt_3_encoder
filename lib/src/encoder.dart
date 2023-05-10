@@ -29,7 +29,7 @@ class GPT3Encoder {
   ///
   /// print(decoded); // Hello World!
   String decode(List<int> tokens) {
-    dynamic text = tokens.map((x) => _bpe.decoder[x]).join('');
+    dynamic text = tokens.map((x) => _bpe.decoder![x]).join('');
 
     final splitted = text.split('');
     text = GPT3EncoderUtils.decodeStr(splitted.map((x) {

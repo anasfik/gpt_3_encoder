@@ -8,48 +8,33 @@ import 'package:gpt_3_encoder/src/core/utils.dart';
 /// This class will be responsible to manage and handle the bpe encoding for the [GPT3Encoder].
 /// {@endtemplate}
 class GPT3EncoderBpe {
-  Map? bpeRanks;
-  Map? cache;
-  var bpeMerges;
+  Map<String, int>? bpeRanks;
+  Map<String, String>? cache;
+  List<List<String>>? bpeMerges;
   List<String>? lines;
   Map<String, int>? encoder;
   String? bpeFile;
-  final decoder = {};
+  Map<int?, String>? decoder;
 
   /// {@macro gpt3_encoder_bpe}
   GPT3EncoderBpe() {
     cache = {};
-
+    decoder = {};
     bpeFile = File("vocab.bpe").readAsStringSync();
-
     lines = bpeFile!.split('\n');
-
-    bpeMerges = lines!.sublist(1, lines!.length - 1).map((x) {
-      final splitted = x.split(RegExp(
-        r'\s+',
-        caseSensitive: false,
-        multiLine: true,
-        unicode: true,
-      ));
-      return splitted.where((e) => e.trim().isNotEmpty).toList();
-    }).toList();
-
-    bpeRanks = GPT3EncoderUtils.dictZip(
-      bpeMerges,
-      GPT3EncoderUtils.range(0, bpeMerges.length),
+    bpeMerges = _mergesFromBpeFile();
+    bpeRanks = _dictZip(
+      bpeMerges!,
+      GPT3EncoderUtils.range(0, bpeMerges!.length),
     );
-
-    encoder = (jsonDecode(File("./encoder.json").readAsStringSync())
-            as Map<String, dynamic>)
-        .cast<String, int>();
-
-    for (var e in encoder!.keys) {
+    encoder = _encoderDataFromEncoderFile();
+    for (String e in encoder!.keys) {
       final encoded = encoder![e];
-      decoder[encoded] = e;
+      decoder![encoded] = e;
     }
   }
 
-  Set<List<String>> _getPairs(List<String> word) {
+  Set<List<String>>? _getPairs(List<String> word) {
     final pairs = <List<String>>{};
 
     String prevChar = word[0];
@@ -64,10 +49,10 @@ class GPT3EncoderBpe {
 
   String call(String token) {
     if (cache!.containsKey(token)) {
-      return cache![token];
+      return cache![token]!;
     }
-    dynamic word = token.split('');
-    dynamic pairs = _getPairs(word);
+    List<String> word = token.split('');
+    Set<List<String>>? pairs = _getPairs(word);
 
     if (pairs == null || pairs.isEmpty) {
       return token;
@@ -75,30 +60,25 @@ class GPT3EncoderBpe {
 
     while (true) {
       final minPairs = {};
-      final pairsList = List.from(pairs);
-      for (var pair in pairsList) {
+      final pairsList = List.of(pairs!);
+      for (List<String> pair in pairsList) {
         final rank = bpeRanks![pair.join('')];
         minPairs[(GPT3EncoderUtils.isNaN(rank) ? 10e10 : rank)] = pair;
       }
 
-      final minimum = GPT3EncoderUtils.minimum(
-        minPairs.keys.map(
-          (x) {
-            return x;
-          },
-        ),
-      );
+      final minimum = GPT3EncoderUtils.minimum(minPairs.keys.map((x) => x));
 
       final bigram = minPairs[minimum];
 
-      if (!(bpeRanks!.containsKey(bigram.join("")))) {
+      final doesNotContain = !(bpeRanks!.containsKey(bigram.join("")));
+      if (doesNotContain) {
         break;
       }
 
-      dynamic first = bigram[0];
-      dynamic second = bigram[1];
-      dynamic newWord = [];
-      dynamic i = 0;
+      String first = bigram[0];
+      String second = bigram[1];
+      List<String> newWord = [];
+      int i = 0;
 
       while (i < word.length) {
         final j = word.indexOf(first, i);
@@ -122,13 +102,49 @@ class GPT3EncoderBpe {
       if (word.length == 1) {
         break;
       } else {
-        final wordList = (word as List).map((x) => x.toString()).toList();
+        final wordList = word.map((x) => x.toString()).toList();
         pairs = _getPairs(wordList);
       }
     }
-    word = word.join(' ');
-    cache![token] = word;
 
-    return word;
+    final finalWordResult = word.join(' ');
+    cache![token] = finalWordResult;
+
+    return finalWordResult;
+  }
+
+  List<List<String>>? _mergesFromBpeFile() {
+    final sublist = lines!.sublist(1, lines!.length - 1);
+    final emptySpacesRegExp = RegExp(
+      r'\s+',
+      caseSensitive: false,
+      multiLine: true,
+      unicode: true,
+    );
+
+    return sublist.map((x) {
+      final splatter = x.split(emptySpacesRegExp);
+      return splatter.where((e) => e.trim().isNotEmpty).toList();
+    }).toList();
+  }
+
+  static Map<String, int> _dictZip(List<List<String>> x, List<int> y) {
+    final result = <String, int>{};
+
+    x.asMap().forEach(
+      (i, _) {
+        final el = x[i].join('');
+        final yel = y[i];
+        result[el] = yel;
+      },
+    );
+
+    return result;
+  }
+
+  Map<String, int> _encoderDataFromEncoderFile() {
+    return (jsonDecode(File("./encoder.json").readAsStringSync())
+            as Map<String, dynamic>)
+        .cast<String, int>();
   }
 }

@@ -13,19 +13,21 @@ class GPT3EncoderHandler {
   Map<String, int>? byteDecoder;
 
   static Map<int, String> bytesToUnicode() {
-    final bs = GPT3EncoderUtils.range(
-            GPT3EncoderUtils.ord('!'), GPT3EncoderUtils.ord('~') + 1)
-        .followedBy(GPT3EncoderUtils.range(
-            GPT3EncoderUtils.ord('¡'), GPT3EncoderUtils.ord('¬') + 1))
-        .followedBy(GPT3EncoderUtils.range(
-            GPT3EncoderUtils.ord('®'), GPT3EncoderUtils.ord('ÿ') + 1))
-        .toList();
-    List<dynamic> cs = bs.sublist(0);
+    Iterable<int> bs = GPT3EncoderUtils.range(
+        GPT3EncoderUtils.ord('!'), GPT3EncoderUtils.ord('~') + 1);
+
+    bs = bs.followedBy(GPT3EncoderUtils.range(
+        GPT3EncoderUtils.ord('¡'), GPT3EncoderUtils.ord('¬') + 1));
+
+    bs = bs.followedBy(GPT3EncoderUtils.range(
+        GPT3EncoderUtils.ord('®'), GPT3EncoderUtils.ord('ÿ') + 1));
+
+    List cs = bs.toList().sublist(0);
     int n = 0;
 
     for (int b = 0; b < pow(2, 8); b++) {
       if (!bs.contains(b)) {
-        bs.add(b);
+        bs.toList().add(b);
         cs.add(pow(2, 8).toInt() + n);
         n = n + 1;
       }
@@ -34,17 +36,15 @@ class GPT3EncoderHandler {
     cs = cs.map((x) => GPT3EncoderUtils.chr(x)).toList();
     final result = <int, String>{};
 
-    bs.asMap().forEach(
+    bs.toList().asMap().forEach(
       (i, _) {
-        final elem = bs[i];
+        final bsList = bs.toList();
+        final elem = bsList[i];
         final sElem = cs[i];
+
         result[elem] = sElem;
       },
     );
-
-    // for (int i = 0; i < bs.length; i++) {
-    //   result[bs[i]] = cs[i];
-    // }
 
     return result;
   }
