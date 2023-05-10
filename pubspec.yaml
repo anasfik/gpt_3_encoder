@@ -1,13 +1,12 @@
 name: gpt_3_encoder
 description: A pure Dart implementation of OpenAI's original Python encoder/decoder for GPT models.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/anasfik/gpt_3_encoder
-
-
+issue_tracker: https://github.com/anasfik/gpt_3_encoder/issues
+homepage: https://gwhyyy.com
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
-
+  sdk: ">=2.19.6 <3.0.0"
 
 dev_dependencies:
   lints: ^2.0.0
